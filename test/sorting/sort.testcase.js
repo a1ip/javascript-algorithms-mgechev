@@ -1,21 +1,20 @@
 module.exports = function (sort, algorithmName, options) {
-
   'use strict';
 
   options = options || {
     integers: false,
-    reverse : true
+    reverse: true
   };
 
   describe(algorithmName, function () {
 
     function createRandomArray(config) {
       config = config || {};
-      var size = config.size || 100,
-          precision = config.precision || 2,
-          multiplier = config.multiplier || 100;
-
+      var size = config.size || 100;
+      var precision = config.precision || 2;
+      var multiplier = config.multiplier || 100;
       var result = [];
+
       for (var i = size; i > 0; i -= 1) {
         result.push(parseFloat((Math.random() *
             multiplier).toFixed(precision)));
@@ -40,7 +39,7 @@ module.exports = function (sort, algorithmName, options) {
           precision: 0
         });
       }
-      sort(array);
+      array = sort(array);
       for (var i = 0; i < array.length - 1; i += 1) {
         expect(array[i] <= array[i + 1]).toBeTruthy();
       }
@@ -54,7 +53,7 @@ module.exports = function (sort, algorithmName, options) {
         }
 
         var array = createRandomArray();
-        sort(array, comparator);
+        array = sort(array, comparator);
 
         for (var i = 0; i < array.length - 1; i += 1) {
           expect(array[i] >= array[i + 1]).toBeTruthy();

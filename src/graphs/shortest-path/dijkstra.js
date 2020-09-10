@@ -1,110 +1,124 @@
-/***********************************************
-        A sample distance matrix
- 
-var graph = [[NaN, 7,   9,   NaN, NaN, 16],
-             [7,   NaN, 10,  15,  NaN, NaN],
-             [9,   10,  NaN, 11,  NaN, 2],
-             [NaN, 15,  11,  NaN, 6,   NaN],
-             [NaN, NaN, NaN, 6,   NaN, 9],
-             [16,  NaN, 2,   NaN, 9,   NaN]];
-***********************************************/
+(function (exports) {
+  'use strict';
 
+  var dijkstra = (function () {
 
-/**
- * Dijstra's shortest path algorithm.
- * For the implementation is not used the most suitable data structure (Fibonacci heap)
- * but the binary heap gives also good results. The implementation bellow finds
- * the minimum distance between two given nodes using a distance matrix.
- */
-var dijstra = function () {
-
-    var Heap = require('../../data-structures/heap.js').Heap,
-        current,
-        visited,
-        distance,
-        unvisited;
-
+    var Heap = require('../../data-structures/heap.js').Heap;
+    var current;
+    var visited;
+    var distance;
+    var unvisited;
 
     /**
-     * Creates a new node instance
+     * Creates a new node instance.
      *
      * @constructor
      * @private
-     * @param {number} id The id of the node
-     * @param {number} distance The distance from the beginning
+     * @param {Number} id Id of the node.
+     * @param {Number} distance Distance from the beginning.
      */
     function Node(id, distance) {
-        this.node = id;
-        this.distance = distance;
+      this.node = id;
+      this.distance = distance;
     }
 
     /**
      * Compares the distances between two nodes.
      *
      * @private
-     * @param {object} a A node
-     * @param {object} b A graph node
-     * @returns {number} The
+     * @param {Node} a 1st node.
+     * @param {Node} b 2nd node.
+     * @returns {number} diff between node distances.
      */
     function compareNodesDistance(a, b) {
-        return b.distance - a.distance;
+      return b.distance - a.distance;
     }
 
     /**
-     * Initialize all variables used for the algorithm
+     * Initialize all variables used for the algorithm.
      *
      * @private
-     * @param {number} src A start node
+     * @param {number} src Start node.
+     * @param {Array} graph A distance matrix of the graph.
      */
-    function init(src) {
-        var currentTemp;
-        current = {};
-        visited = [];
-        distance = [];
-        unvisited = new Heap(compareNodesDistance);
-        for (var i = 0; i < graph.length; i += 1) {
-            currentTemp = new Node();
-            if (src === i) {
-                currentTemp.distance = 0;
-            } else {
-                currentTemp.distance = Infinity;
-            }
-            currentTemp.node = i;
-            visited[i] = false;
-            distance[i] = currentTemp;
-            unvisited.add(currentTemp);
+    function init(src, graph) {
+      var currentTemp;
+      current = {};
+      visited = [];
+      distance = [];
+      unvisited = new Heap(compareNodesDistance);
+      for (var i = 0; i < graph.length; i += 1) {
+        currentTemp = new Node();
+        if (src === i) {
+          currentTemp.distance = 0;
+        } else {
+          currentTemp.distance = Infinity;
         }
-        current.node = src;
-        current.distance = 0;
+        currentTemp.node = i;
+        visited[i] = false;
+        distance[i] = currentTemp;
+        unvisited.add(currentTemp);
+      }
+      current.node = src;
+      current.distance = 0;
     }
 
     /**
-     * Dijkstra's shortest path algorithm
+     * Dijkstra's shortest path algorithm. Finds the minimum
+     * distance between two given nodes using a distance matrix.<br><br>
+     * For the implementation is not used the most suitable data structure
+     * (Fibonacci heap) but the Binary heap gives also good results.<br><br>
+     *
+     * Time complexity: O(|E|+|V|log(|V|)) where V and E are the number of
+     * vertices and edges respectively.
      *
      * @public
-     * @param {number} src Source node
-     * @param {number} dest Destination node
-     * @param {array} graph A distance matrix of the graph
-     * @returns {number} The shortest distance between the nodes
+     * @module graphs/shortest-path/dijkstra
+     * @param {Number} src Source node.
+     * @param {Number} dest Destination node.
+     * @param {Array} graph A distance matrix of the graph.
+     * @returns {Number} The shortest distance between two nodes.
+     *
+     * @example
+     * var dijkstra =
+     * require('path-to-algorithms/src/graphs/shortest-path/dijkstra').dijkstra;
+     * var distMatrix =
+     *    [[Infinity, 7,        9,        Infinity, Infinity, 16],
+     *     [7,        Infinity, 10,       15,       Infinity, Infinity],
+     *     [9,        10,       Infinity, 11,       Infinity, 2],
+     *     [Infinity, 15,       11,       Infinity, 6,        Infinity],
+     *     [Infinity, Infinity, Infinity, 6,        Infinity, 9],
+     *     [16,       Infinity, 2,        Infinity, 9,        Infinity]];
+     * var shortestDist = dijkstra(0, 2, distMatrix); // 9
      */
     return function (src, dest, graph) {
-        var  tempDistance = 0;
-        init(src);
-        while (current.node != dest && current.distance != Infinity) {
-            for (var i = 0; i < graph.length; i += 1) {
-                if (current.node !== i && //if it's not the current node
-                    !visited[i] && //and if we haven't visited this node
-                    !isNaN(graph[i][current.node])) { //and this node is sibling of the current...
+      var tempDistance = 0;
+      init(src, graph);
+      while (current.node !== dest && isFinite(current.distance)) {
+        for (var i = 0; i < graph.length; i += 1) {
+          if (current.node !== i && //if it's not the current node
+            !visited[i] && //and if we haven't visited this node
+            //and this node is sibling of the current...
+            Number.isFinite(graph[i][current.node])) {
 
-                    tempDistance = current.distance + graph[i][current.node]; 
-                    if (tempDistance < distance[i].distance) {
-                        distance[i].distance = tempDistance;
-                    }
-                }
+            tempDistance = current.distance + graph[i][current.node];
+            if (tempDistance < distance[i].distance) {
+              distance[i].distance = tempDistance;
+              unvisited.update(current);
             }
-            visited[current.node] = true;
-            current = unvisited.extract();
+          }
         }
+        visited[current.node] = true;
+        current = unvisited.extract();
+      }
+      if (distance[dest]) {
         return distance[dest].distance;
+      }
+      return Infinity;
     };
-}();
+
+  })();
+
+  exports.dijkstra = dijkstra;
+
+})(typeof window === 'undefined' ? module.exports : window);

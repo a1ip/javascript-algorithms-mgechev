@@ -1,18 +1,17 @@
-'use strict';
-
-var mod = require('../../src/data-structures/red-black-tree.js'),
-    Node = mod.Node,
-    RBTree = mod.RBTree,
-    Colors = mod.Colors;
+var mod = require('../../src/data-structures/red-black-tree.js');
+var Vertex = mod.Node;
+var RBTree = mod.RBTree;
+var Colors = mod.Colors;
 
 describe('Node', function () {
+  'use strict';
 
   it('should be a constructor function', function () {
-    expect(typeof Node).toBe('function');
+    expect(typeof Vertex).toBe('function');
   });
 
   it('should set all properties via the constructor', function () {
-    var node = new Node('key', 'value', 1, 2, Colors.RED);
+    var node = new Vertex('key', 'value', 1, 2, Colors.RED);
     expect(node.getKey()).toBe('key');
     expect(node.getLeft()).toBe(1);
     expect(node.getRight()).toBe(2);
@@ -22,11 +21,11 @@ describe('Node', function () {
 
   describe('Node flipColor', function () {
     it('should has method flipColor', function () {
-      var node = new Node();
+      var node = new Vertex();
       expect(typeof node.flipColor).toBe('function');
     });
     it('should work properly', function () {
-      var node = new Node();
+      var node = new Vertex();
       expect(node.isRed()).toBe(false);
       node.flipColor();
       expect(node.isRed()).toBe(true);
@@ -37,6 +36,8 @@ describe('Node', function () {
 });
 
 describe('RBTree', function () {
+  'use strict';
+
   it('should be a constructor function', function () {
     expect(typeof RBTree).toBe('function');
   });
@@ -94,6 +95,22 @@ describe('RBTree', function () {
       expect(tree.get(5)).toBe('foobar');
       tree.put(5, 'foobar1');
       expect(tree.get(5)).toBe('foobar1');
+    });
+  });
+
+  describe('levelOrderTraversal method', function () {
+    it('should be able to traverse tree in level order', function () {
+      var tree = new RBTree();
+      expect(tree.levelOrderTraversal()).toBe('Level Order Traversal -: Tree is empty');
+      tree.put(10);
+      tree.put(20);
+      expect(tree.levelOrderTraversal()).toBe('Level Order Traversal -: 20 10');
+      tree.put(30);
+      expect(tree.levelOrderTraversal()).toBe('Level Order Traversal -: 20 10 30');
+      tree.put(45);
+      expect(tree.levelOrderTraversal()).toBe('Level Order Traversal -: 20 10 45 30');
+      tree.put(5);
+      expect(tree.levelOrderTraversal()).toBe('Level Order Traversal -: 20 10 45 5 30');
     });
   });
 
